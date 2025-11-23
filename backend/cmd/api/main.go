@@ -6,7 +6,9 @@ import (
 	"github.com/prodrebound/MyWorkoutTracker/backend/internal/config"
 	"github.com/prodrebound/MyWorkoutTracker/backend/internal/core/domain"
 	"github.com/prodrebound/MyWorkoutTracker/backend/internal/handler"
+	"github.com/prodrebound/MyWorkoutTracker/backend/internal/repository"
 	"github.com/prodrebound/MyWorkoutTracker/backend/internal/router"
+	"github.com/prodrebound/MyWorkoutTracker/backend/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
@@ -22,16 +24,16 @@ func main() {
 		return
 	}
 
-	db.AutoMigrate(
-		&domain.Exercise{},
-		&domain.Routine{},
-		&domain.RoutineExercise{},
-		&domain.Schedule{},
-	)
+	err = db.AutoMigrate(&domain.Exercise{})
+	if err != nil {
+		log.Fatal("Migration Error:", err)
+	}
 
-	exerciseHandler := handler.NewExerciseHandler(db)
+	exerciseRepo := repository.NewExerciseRepository(db)
+	exerciseService := service.NewExerciseService(exerciseRepo)
+	exerciseHandler := handler.NewExerciseHandler(exerciseService)
 
-	if cfg.Env == "development" {
+	if cfg.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -40,7 +42,6 @@ func main() {
 
 	log.Printf("Server runs in %s mode on port %s", cfg.Env, cfg.ServerPort)
 
-	// Wir nutzen hier fmt.Sprintf, um den Port korrekt zu übergeben, falls nötig
 	if err := r.Run(cfg.ServerPort); err != nil {
 		log.Fatal("Could not start server:", err)
 	}

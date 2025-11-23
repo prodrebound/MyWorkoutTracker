@@ -5,19 +5,27 @@ import (
 	"github.com/prodrebound/MyWorkoutTracker/backend/internal/handler"
 )
 
-// SetupRoutes nimmt die Engine UND die Handler entgegen
 func SetupRoutes(r *gin.Engine, exerciseHandler *handler.ExerciseHandler) {
 
-	// API Versionierung ist immer gut
 	api := r.Group("/api/v1")
 	{
-		// Exercise Gruppe
 		exercises := api.Group("/exercises")
 		{
-			// GET /api/v1/exercises
+			// GET /api/v1/exercises (Hole alle)
+			// GET /api/v1/exercises?muscle_group=Chest (Hole nur Brust)
 			exercises.GET("", exerciseHandler.GetExercises)
-		}
 
-		// Hier kommen später weitere Gruppen (z.B. /workouts)
+			// POST /api/v1/exercises (Erstellen)
+			exercises.POST("", exerciseHandler.CreateExercise)
+
+			// GET /api/v1/exercises/1 (Hole ID 1)
+			exercises.GET("/:id", exerciseHandler.GetExerciseByID)
+
+			// PUT /api/v1/exercises/1 (Update ID 1)
+			exercises.PUT("/:id", exerciseHandler.UpdateExercise)
+
+			// DELETE /api/v1/exercises/1 (Lösche ID 1)
+			exercises.DELETE("/:id", exerciseHandler.DeleteExercise)
+		}
 	}
 }
