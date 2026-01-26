@@ -1,9 +1,18 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Exercise struct {
-	gorm.Model
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+
 	Name        string `json:"name"`
 	MuscleGroup string `json:"muscle_group"`
 	DefaultSets int    `json:"default_sets"`

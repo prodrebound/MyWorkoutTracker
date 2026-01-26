@@ -1,20 +1,30 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Routine struct {
-	gorm.Model
+	ID        uint           `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	Exercises   []RoutineExercise `json:"exercises"`
 }
 
 type RoutineExercise struct {
-	gorm.Model
-	RoutineID  uint     `json:"routine_id"`
-	ExerciseID uint     `json:"exercise_id"`
-	Exercise   Exercise `json:"exercise"`
-	Order      int      `json:"order"`
-	Sets       int      `json:"sets"`
-	Reps       int      `json:"reps"`
+	ID        uint `gorm:"primaryKey" json:"-"`
+	RoutineID uint `json:"-"`
+
+	ExerciseID uint      `json:"exercise_id"`
+	Exercise   *Exercise `json:"exercise,omitempty"`
+
+	Sets  int `json:"sets"`
+	Reps  int `json:"reps"`
+	Order int `json:"order"`
 }
