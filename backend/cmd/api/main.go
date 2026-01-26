@@ -24,7 +24,7 @@ func main() {
 		return
 	}
 
-	err = db.AutoMigrate(&domain.Exercise{})
+	err = db.AutoMigrate(&domain.Exercise{}, &domain.Routine{}, &domain.RoutineExercise{})
 	if err != nil {
 		log.Fatal("Migration Error:", err)
 	}
@@ -33,12 +33,16 @@ func main() {
 	exerciseService := service.NewExerciseService(exerciseRepo)
 	exerciseHandler := handler.NewExerciseHandler(exerciseService)
 
+	routineRepo := repository.NewRoutineRepository(db)
+	routineService := service.NewRoutineService(routineRepo)
+	routineHandler := handler.NewRoutineHandler(routineService)
+
 	if cfg.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	r := gin.Default()
-	router.SetupRoutes(r, exerciseHandler)
+	router.SetupRoutes(r, exerciseHandler, routineHandler)
 
 	log.Printf("Server runs in %s mode on port %s", cfg.Env, cfg.ServerPort)
 
